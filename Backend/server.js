@@ -13,8 +13,8 @@ mongoose
   .catch((err) => console.log(err));
 
 //Import Routes
-const authRoute = require("./Routes/auth");
-const postRoute = require("./Routes/posts");
+const authRoute = require("./Routes/AuthRoutes");
+const postRoute = require("./Routes/PostRoutes");
 //Route MiddleWare
 app.use(express.json());
 

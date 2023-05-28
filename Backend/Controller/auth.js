@@ -13,7 +13,7 @@ function generateAccessToken(userId) {
   });
 }
 // Registration
-router.post("/register", async (req, res) => {
+const Register = async (req, res) => {
   // Validate the data
   const { error } = registerValidation(req.body);
   if (error)
@@ -42,10 +42,10 @@ router.post("/register", async (req, res) => {
   } catch (err) {
     res.status(400).send({ msg: "Something went wrong, Try Again" });
   }
-});
+};
 
 // Login
-router.post("/login", async (req, res) => {
+const Login = async (req, res) => {
   // Validate the data
   const { error } = loginValidation(req.body);
   if (error) return res.status(400).send({ msg: "wrong credentials", error });
@@ -64,10 +64,10 @@ router.post("/login", async (req, res) => {
   const refreshToken = generateRefreshToken(user._id);
 
   res.json({ accessToken, refreshToken, msg: "Login successful" });
-});
+};
 
 // Refresh Token
-router.post("/refresh", async (req, res) => {
+const RefreshToken =  async (req, res) => {
   const refreshToken = req.body.refreshToken;
 
   // Check if the refresh token is valid
@@ -81,11 +81,11 @@ router.post("/refresh", async (req, res) => {
   } catch (err) {
     res.status(401).send("Invalid refresh token");
   }
-});
+};
 
 // Helper function to generate a refresh token
 function generateRefreshToken(userId) {
   return jwt.sign({ _id: userId }, process.env.REFRESH_TOKEN_SECRET);
 }
 
-module.exports = router;
+module.exports = {Register,Login,RefreshToken};
