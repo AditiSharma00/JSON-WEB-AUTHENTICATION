@@ -49,7 +49,7 @@ const PostPage = () => {
         }
       } catch (error) {
         console.log(error);
-        // Handle error while fetching posts
+       
       }
     };
 
