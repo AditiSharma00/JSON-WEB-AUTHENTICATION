@@ -14,11 +14,11 @@ mongoose
 
 //Import Routes
 const authRoute = require("./Routes/auth");
-const postRoute=require("./Routes/posts")
+const postRoute = require("./Routes/posts");
 //Route MiddleWare
 app.use(express.json());
 
 app.use("/api/user", authRoute);
-app.use("/api/posts",postRoute)
+app.use("/api/posts", postRoute);
 
-app.listen(3000, () => console.log("Server is running"));
+app.listen(8000, () => console.log("Server is running"));

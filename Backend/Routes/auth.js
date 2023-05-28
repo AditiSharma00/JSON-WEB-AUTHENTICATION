@@ -5,56 +5,87 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const { registerValidation, loginValidation } = require("../validation");
 
+dotenv.config();
+//function to generate access token
+function generateAccessToken(userId) {
+  return jwt.sign({ _id: userId }, process.env.TOKEN_SECRET, {
+    expiresIn: "50m",
+  });
+}
+// Registration
 router.post("/register", async (req, res) => {
-  //For validation the data
-
+  // Validate the data
   const { error } = registerValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error)
+    return res
+      .status(400)
+      .send({ msg: "Password should be string and of min 6 characters" });
 
-  //checking if the user already exists
-
+  // Check if the user already exists
   const emailExists = await User.findOne({ email: req.body.email });
-  if (emailExists) return res.status(400).send("Email already exists");
+  if (emailExists) return res.status(400).send({ msg: "Email already exists" });
 
-  //hash passwords
+  // Hash password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-  //create a new user
+  // Create a new user
   const user = new User({
     name: req.body.name,
     email: req.body.email,
     password: hashedPassword,
   });
+
   try {
     const savedUser = await user.save();
-    res.send({ user: user._id });
+    res.send({ user: user._id, msg: "Registration successful" });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).send({ msg: "Something went wrong, Try Again" });
   }
 });
 
-//login
-
+// Login
 router.post("/login", async (req, res) => {
-  //For validation the data
+  // Validate the data
   const { error } = loginValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).send({ msg: "wrong credentials", error });
 
-  //checking if email exists
+  // Check if email exists
   const user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(400).send("Email doesn't exist");
+  if (!user) return res.status(400).send({ msg: "Email doesn't exist" });
 
-  //password is correct
+  // Check if password is correct
   const validPass = await bcrypt.compare(req.body.password, user.password);
-  if (!validPass) return res.status(400).send("Email or Password is wrong!");
+  if (!validPass)
+    return res.status(400).send({ msg: "Email or password is wrong!" });
 
-  //create and assigned a token
-  const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, {
-    expiresIn: "1h",
-  });
+  // Create and assign an access token
+  const accessToken = generateAccessToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
 
-  res.header("auth-token", token).send(token);
+  res.json({ accessToken, refreshToken, msg: "Login successful" });
 });
+
+// Refresh Token
+router.post("/refresh", async (req, res) => {
+  const refreshToken = req.body.refreshToken;
+
+  // Check if the refresh token is valid
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+    // Create and assign a new access token
+    const accessToken = generateAccessToken(decoded._id);
+
+    res.json({ accessToken });
+  } catch (err) {
+    res.status(401).send("Invalid refresh token");
+  }
+});
+
+// Helper function to generate a refresh token
+function generateRefreshToken(userId) {
+  return jwt.sign({ _id: userId }, process.env.REFRESH_TOKEN_SECRET);
+}
 
 module.exports = router;
