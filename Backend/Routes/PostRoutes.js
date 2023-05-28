@@ -20,4 +20,4 @@ router.patch("/:id", verify, updateById);
 //function for get by id
 router.get("/:id", verify, getById);
 
-module.exports = router;
+module.exports = router
