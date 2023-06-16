@@ -2,7 +2,7 @@
 
 # JWT-based Authentication and Authorization System
 
-This project implements a JWT-based authentication and authorization system using Node.js for the backend and Angular/React for the frontend. The system provides secure user authentication and protects routes by requiring a valid authentication token for accessing protected resources.
+This project implements a JWT-based authentication and authorization system using Node.js for the backend and React for the frontend. The system provides secure user authentication and protects routes by requiring a valid authentication token for accessing protected resources.
 
 
 ## Features
